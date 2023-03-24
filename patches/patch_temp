@@ -1,0 +1,148 @@
+diff --git a/patches/react-native-fast-image+8.6.3.patch b/patches/react-native-fast-image+8.6.3.patch
+index fc7e59c17c..b07bbc1d74 100644
+--- a/patches/react-native-fast-image+8.6.3.patch
++++ b/patches/react-native-fast-image+8.6.3.patch
+@@ -1,12 +1,13 @@
+ diff --git a/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/BitmapSizeDecoder.java b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/BitmapSizeDecoder.java
+ new file mode 100644
+-index 0000000..03ad017
++index 0000000..5614e4f
+ --- /dev/null
+ +++ b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/BitmapSizeDecoder.java
+-@@ -0,0 +1,31 @@
++@@ -0,0 +1,39 @@
+ +package com.dylanvann.fastimage;
+ +
+ +import android.graphics.BitmapFactory;
+++import android.media.ExifInterface;
+ +
+ +import androidx.annotation.NonNull;
+ +import androidx.annotation.Nullable;
+@@ -16,22 +17,29 @@ index 0000000..03ad017
+ +import com.bumptech.glide.load.engine.Resource;
+ +import com.bumptech.glide.load.resource.SimpleResource;
+ +
+++import java.io.File;
+ +import java.io.IOException;
+-+import java.io.InputStream;
+ +
+-+public class BitmapSizeDecoder implements ResourceDecoder<InputStream, BitmapFactory.Options> {
+++public class BitmapSizeDecoder implements ResourceDecoder<File, BitmapFactory.Options> {
+ +
+ +    @Override
+-+    public boolean handles(@NonNull InputStream source, @NonNull Options options) throws IOException {
+++    public boolean handles(@NonNull File source, @NonNull Options options) throws IOException {
+ +        return true;
+ +    }
+ +
+ +    @Nullable
+ +    @Override
+-+    public Resource<BitmapFactory.Options> decode(@NonNull InputStream source, int width, int height, @NonNull Options options) throws IOException {
+++    public Resource<BitmapFactory.Options> decode(@NonNull File source, int width, int height, @NonNull Options options) throws IOException {
+ +        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+ +        bitmapOptions.inJustDecodeBounds = true;
+-+        BitmapFactory.decodeStream(source, null, bitmapOptions);
+++        BitmapFactory.decodeFile(source.getAbsolutePath(), bitmapOptions);
+++        int orientation = Integer.parseInt(new ExifInterface(source.getAbsolutePath()).getAttribute(ExifInterface.TAG_ORIENTATION));
+++        if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+++            int outHeight = bitmapOptions.outHeight;
+++            int outWidth = bitmapOptions.outWidth;
+++            bitmapOptions.outHeight = outWidth;
+++            bitmapOptions.outWidth = outHeight;
+++        }
+ +        return new SimpleResource(bitmapOptions);
+ +    }
+ +}
+@@ -67,7 +75,7 @@ index 0000000..7d208d1
+ +}
+ \ No newline at end of file
+ diff --git a/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageOkHttpProgressGlideModule.java b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageOkHttpProgressGlideModule.java
+-index 811292a..f60b87c 100644
++index 811292a..dcfb413 100644
+ --- a/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageOkHttpProgressGlideModule.java
+ +++ b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageOkHttpProgressGlideModule.java
+ @@ -2,6 +2,7 @@ package com.dylanvann.fastimage;
+@@ -78,12 +86,20 @@ index 811292a..f60b87c 100644
+  
+  import com.bumptech.glide.Glide;
+  import com.bumptech.glide.Registry;
+-@@ -47,6 +48,9 @@ public class FastImageOkHttpProgressGlideModule extends LibraryGlideModule {
++@@ -11,6 +12,7 @@ import com.bumptech.glide.load.model.GlideUrl;
++ import com.bumptech.glide.module.LibraryGlideModule;
++ import com.facebook.react.modules.network.OkHttpClientProvider;
++ 
+++import java.io.File;
++ import java.io.IOException;
++ import java.io.InputStream;
++ import java.util.HashMap;
++@@ -47,6 +49,9 @@ public class FastImageOkHttpProgressGlideModule extends LibraryGlideModule {
+                  .build();
+          OkHttpUrlLoader.Factory factory = new OkHttpUrlLoader.Factory(client);
+          registry.replace(GlideUrl.class, InputStream.class, factory);
+ +        // Decoder + Transcoder pair for InputStream -> Size
+-+        registry.prepend(InputStream.class, BitmapFactory.Options.class, new BitmapSizeDecoder());
+++        registry.prepend(File.class, BitmapFactory.Options.class, new BitmapSizeDecoder());
+ +        registry.register(BitmapFactory.Options.class, Size.class, new BitmapSizeTranscoder());
+      }
+  
+@@ -115,7 +131,7 @@ index dbeb813..bf8f21c 100644
+          return false;
+      }
+ diff --git a/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageViewWithUrl.java b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageViewWithUrl.java
+-index 34fcf89..1339f5c 100644
++index 34fcf89..8f6e741 100644
+ --- a/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageViewWithUrl.java
+ +++ b/node_modules/react-native-fast-image/android/src/main/java/com/dylanvann/fastimage/FastImageViewWithUrl.java
+ @@ -2,6 +2,7 @@ package com.dylanvann.fastimage;
+@@ -126,7 +142,7 @@ index 34fcf89..1339f5c 100644
+  import android.annotation.SuppressLint;
+  import android.content.Context;
+  import android.graphics.drawable.Drawable;
+-@@ -9,16 +10,24 @@ import android.graphics.drawable.Drawable;
++@@ -9,16 +10,26 @@ import android.graphics.drawable.Drawable;
+  import androidx.annotation.Nullable;
+  import androidx.appcompat.widget.AppCompatImageView;
+  
+@@ -134,10 +150,12 @@ index 34fcf89..1339f5c 100644
+  import com.bumptech.glide.RequestBuilder;
+  import com.bumptech.glide.RequestManager;
+ +import com.bumptech.glide.load.DataSource;
+++import com.bumptech.glide.load.engine.DiskCacheStrategy;
+ +import com.bumptech.glide.load.engine.GlideException;
+  import com.bumptech.glide.load.model.GlideUrl;
+  import com.bumptech.glide.request.Request;
+ +import com.bumptech.glide.request.RequestListener;
+++import com.bumptech.glide.request.RequestOptions;
+ +import com.bumptech.glide.request.target.SimpleTarget;
+ +import com.bumptech.glide.request.target.Target;
+ +import com.bumptech.glide.request.transition.Transition;
+@@ -151,7 +169,7 @@ index 34fcf89..1339f5c 100644
+  import java.util.ArrayList;
+  import java.util.Collections;
+  import java.util.List;
+-@@ -124,9 +133,34 @@ class FastImageViewWithUrl extends AppCompatImageView {
++@@ -124,9 +135,34 @@ class FastImageViewWithUrl extends AppCompatImageView {
+              RCTEventEmitter eventEmitter = context.getJSModule(RCTEventEmitter.class);
+              int viewId = this.getId();
+  
+@@ -189,7 +207,7 @@ index 34fcf89..1339f5c 100644
+          }
+  
+          if (requestManager != null) {
+-@@ -148,6 +182,25 @@ class FastImageViewWithUrl extends AppCompatImageView {
++@@ -148,6 +184,28 @@ class FastImageViewWithUrl extends AppCompatImageView {
+                  builder.listener(new FastImageRequestListener(key));
+  
+              builder.into(this);
+@@ -199,7 +217,10 @@ index 34fcf89..1339f5c 100644
+ +            int viewId = this.getId();
+ +            requestManager
+ +                .as(Size.class)
+-+                .load(imageSource == null ? null : imageSource.getSourceForLoad())
+++                .apply(new RequestOptions()
+++                        .skipMemoryCache(true)
+++                        .diskCacheStrategy(DiskCacheStrategy.DATA))
+++                .load(imageSource == null ? null : imageSource.getUri())
+ +                .into(new SimpleTarget<Size>() {
+ +                    @Override
+ +                    public void onResourceReady(@NonNull Size resource, @Nullable Transition<? super Size> transition) {

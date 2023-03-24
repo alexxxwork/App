@@ -75,6 +75,7 @@ const AttachmentView = (props) => {
                 sourceURL={sourceURL}
                 style={styles.imageModalPDF}
                 onToggleKeyboard={props.onToggleKeyboard}
+                toggleZoomed={props.toggleZoomed}
             />
         );
     }

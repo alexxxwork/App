@@ -16,6 +16,7 @@ import CONST from '../../CONST';
 import ONYXKEYS from '../../ONYXKEYS';
 import reportActionPropTypes from '../../pages/home/report/reportActionPropTypes';
 import tryResolveUrlFromApiRoot from '../../libs/tryResolveUrlFromApiRoot';
+import Logger from 'expensify-common/lib/Logger';
 
 const propTypes = {
     /** source is used to determine the starting index in the array of attachments */
@@ -41,11 +42,14 @@ class AttachmentCarousel extends React.Component {
         this.canUseTouchScreen = DeviceCapabilities.canUseTouchScreen();
         this.cycleThroughAttachments = this.cycleThroughAttachments.bind(this);
 
+        this.toggleZoomed = this.toggleZoomed.bind(this);
+
         this.state = {
             source: this.props.source,
             shouldShowArrow: this.canUseTouchScreen,
             isForwardDisabled: true,
             isBackDisabled: true,
+            attachmentZoomed: false,
         };
     }
 
@@ -61,7 +65,11 @@ class AttachmentCarousel extends React.Component {
         }
         this.makeStateWithReports();
     }
-
+    toggleZoomed(attachmentZoomed) {
+        this.setState({attachmentZoomed});
+        console.log(attachmentZoomed);
+        //Logger.log(attachmentZoomed);
+    }
     /**
      * Helps to navigate between next/previous attachments
      * @param {Object} attachmentItem
@@ -192,11 +200,13 @@ class AttachmentCarousel extends React.Component {
                     canSwipeRight={!this.state.isForwardDisabled}
                     onPress={() => this.canUseTouchScreen && this.toggleArrowsVisibility(!this.state.shouldShowArrow)}
                     onCycleThroughAttachments={this.cycleThroughAttachments}
+                    isZoomed={this.state.attachmentZoomed}
                 >
                     <AttachmentView
                         onPress={() => this.toggleArrowsVisibility(!this.state.shouldShowArrow)}
                         source={authSource}
                         file={this.state.file}
+                        toggleZoomed={this.toggleZoomed}
                     />
                 </CarouselActions>
             </View>

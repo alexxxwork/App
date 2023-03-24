@@ -12,6 +12,7 @@ import compose from '../../libs/compose';
 import withWindowDimensions from '../withWindowDimensions';
 import withKeyboardState, {keyboardStatePropTypes} from '../withKeyboardState';
 import withLocalize from '../withLocalize';
+import Log from '../../libs/Log';
 
 const propTypes = {
     ...pdfViewPropTypes,
@@ -42,17 +43,24 @@ class PDFView extends Component {
             isPasswordInvalid: false,
             failedToLoadPDF: false,
             password: '',
+            isZoomed: false,
         };
         this.initiatePasswordChallenge = this.initiatePasswordChallenge.bind(this);
         this.attemptPDFLoadWithPassword = this.attemptPDFLoadWithPassword.bind(this);
         this.finishPDFLoad = this.finishPDFLoad.bind(this);
         this.handleFailureToLoadPDF = this.handleFailureToLoadPDF.bind(this);
+        this.toggleZoomed = this.toggleZoomed.bind(this);
     }
 
     componentDidUpdate() {
         this.props.onToggleKeyboard(this.props.isKeyboardShown);
     }
-
+    toggleZoomed(isZoomed){
+        this.setState({isZoomed});
+        this.props.toggleZoomed(isZoomed);
+        Log.info(String(isZoomed));
+        console.log(isZoomed);
+    }
     handleFailureToLoadPDF(error) {
         if (error.message.match(/password/i)) {
             this.initiatePasswordChallenge();
@@ -162,6 +170,7 @@ class PDFView extends Component {
                             password={this.state.password}
                             onLoadComplete={this.finishPDFLoad}
                             onPageSingleTap={this.props.onPress}
+                            onScaleChanged={(scale) => this.toggleZoomed(scale>1)}
                         />
                     </TouchableWithoutFeedback>
                 )}

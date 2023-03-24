@@ -28,6 +28,8 @@ class Carousel extends Component {
         this.panResponder = PanResponder.create({
             onStartShouldSetPanResponder: () => true,
 
+            onMoveShouldSetPanResponderCapture: (event, gestureState) => !this.props.isZoomed && gestureState.numberActiveTouches === 1,
+
             onPanResponderMove: (event, gestureState) => Animated.event([null, {
                 dx: this.pan,
             }], {useNativeDriver: false})(event, gestureState),
