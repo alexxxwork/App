@@ -26,9 +26,25 @@ class Carousel extends Component {
         this.pan = new Animated.Value(0);
 
         this.panResponder = PanResponder.create({
-            onStartShouldSetPanResponder: () => true,
+            //onStartShouldSetPanResponder: (event, gestureState) => !this.props.isZoomed || gestureState.numberActiveTouches === 2,
+            onStartShouldSetPanResponder: (event) => event.stopPropagation() || false,
+            
+
+            //onStartShouldSetPanResponderCapture: (event, gestureState) => gestureState.numberActiveTouches >= 2,
 
             onMoveShouldSetPanResponderCapture: (event, gestureState) => !this.props.isZoomed && gestureState.numberActiveTouches === 1,
+
+            /*onPanResponderReject: (event, gestureState) => event.stopPropagation(),
+
+            onPanResponderRelease: (event, gestureState) => event.stopPropagation(),
+
+            onPanResponderTerminate: (event, gestureState) => event.stopPropagation(),
+
+            onPanResponderEnd: (event, gestureState) => event.stopPropagation(),
+
+            onPanResponderGrant: (event, gestureState) => event.stopPropagation(),
+
+            onShouldBlockNativeResponder: ()=>true,*/
 
             onPanResponderMove: (event, gestureState) => Animated.event([null, {
                 dx: this.pan,
