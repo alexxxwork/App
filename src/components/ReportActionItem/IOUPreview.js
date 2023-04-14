@@ -87,19 +87,24 @@ const propTypes = {
 
         /** This is either the user's full name, or their login if full name is an empty string */
         displayName: PropTypes.string.isRequired,
-    })).isRequired,
+    })),
 
     /** Session info for the currently logged in user. */
     session: PropTypes.shape({
         /** Currently logged in user email */
         email: PropTypes.string,
-    }).isRequired,
+    }),
 
     /** Information about the user accepting the terms for payments */
     walletTerms: walletTermsPropTypes,
 
     /** Pending action, if any */
     pendingAction: PropTypes.oneOf(_.values(CONST.RED_BRICK_ROAD_PENDING_ACTION)),
+
+    /** Whether or not an IOU report contains money requests in a different currency
+     * that are either created or cancelled offline, and thus haven't been converted to the report's currency yet
+    */
+    shouldShowPendingConversionMessage: PropTypes.bool,
 
     ...withLocalizePropTypes,
 };
@@ -116,6 +121,11 @@ const defaultProps = {
     walletTerms: {},
     pendingAction: null,
     isHovered: false,
+    personalDetails: {},
+    session: {
+        email: null,
+    },
+    shouldShowPendingConversionMessage: false,
 };
 
 const IOUPreview = (props) => {

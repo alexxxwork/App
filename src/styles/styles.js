@@ -1,3 +1,4 @@
+import {defaultStyles as defaultPickerStyles} from 'react-native-picker-select/src/styles';
 import fontFamily from './fontFamily';
 import addOutlineWidth from './addOutlineWidth';
 import themeColors from './themes/default';
@@ -275,6 +276,7 @@ const styles = {
         fontWeight: fontWeightBold,
         fontFamily: fontFamily.EXP_NEUE_BOLD,
         fontSize: variables.fontSizeSmall,
+        lineHeight: variables.lineHeightSmall,
     },
 
     textMicroSupporting: {
@@ -604,6 +606,9 @@ const styles = {
         done: {
             color: themeColors.text,
         },
+        doneDepressed: {
+            fontSize: defaultPickerStyles.done.fontSize,
+        },
         modalViewMiddle: {
             backgroundColor: themeColors.border,
             borderTopWidth: 0,
@@ -775,6 +780,7 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
+        overflow: 'hidden',
     },
 
     calendarDayContainerSelected: {
@@ -941,6 +947,9 @@ const styles = {
         done: {
             color: themeColors.text,
         },
+        doneDepressed: {
+            fontSize: defaultPickerStyles.done.fontSize,
+        },
         modalViewMiddle: {
             backgroundColor: themeColors.border,
             borderTopWidth: 0,
@@ -1062,49 +1071,18 @@ const styles = {
         width: variables.componentSizeNormal,
     },
 
-    statusIndicator: {
+    statusIndicator: (backgroundColor = themeColors.danger) => ({
         borderColor: themeColors.sidebar,
-        backgroundColor: themeColors.danger,
-        borderRadius: 6,
-        borderWidth: 2,
-        position: 'absolute',
-        right: -1,
-        bottom: -1,
-        height: 12,
-        width: 12,
-        zIndex: 10,
-    },
-
-    statusIndicatorLarge: {
-        borderColor: themeColors.componentBG,
-        backgroundColor: themeColors.danger,
+        backgroundColor,
         borderRadius: 8,
         borderWidth: 2,
         position: 'absolute',
-        right: 4,
-        bottom: 4,
+        right: -2,
+        top: -1,
         height: 16,
         width: 16,
         zIndex: 10,
-    },
-
-    statusIndicatorOnline: {
-        backgroundColor: themeColors.success,
-    },
-
-    avatarWithIndicator: {
-        errorDot: {
-            borderColor: themeColors.sidebar,
-            borderRadius: 6,
-            borderWidth: 2,
-            position: 'absolute',
-            right: -1,
-            bottom: -1,
-            height: 12,
-            width: 12,
-            zIndex: 10,
-        },
-    },
+    }),
 
     floatingActionButtonContainer: {
         position: 'absolute',
@@ -1202,11 +1180,6 @@ const styles = {
         height: variables.componentSizeNormal,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-
-    popoverMenuIconEmphasized: {
-        backgroundColor: themeColors.iconSuccessFill,
-        borderRadius: variables.componentSizeLarge / 2,
     },
 
     popoverMenuText: {
@@ -1324,8 +1297,8 @@ const styles = {
         // Starting version 6.3.2 @react-navigation/drawer adds "user-select: none;" to its container.
         // We add user-select-auto to the inner component to prevent incorrect triple-click text selection.
         // For further explanation see - https://github.com/Expensify/App/pull/12730/files#r1022883823
-        userSelect: 'auto',
-        WebkitUserSelect: 'auto',
+        userSelect: 'text',
+        WebkitUserSelect: 'text',
     },
 
     appContentHeader: {
@@ -2853,6 +2826,12 @@ const styles = {
         cursor: 'move',
     },
 
+    sliderKnobTooltipView: {
+        height: variables.sliderKnobSize,
+        width: variables.sliderKnobSize,
+        borderRadius: variables.sliderKnobSize / 2,
+    },
+
     sliderKnob: {
         backgroundColor: themeColors.success,
         position: 'absolute',
@@ -2912,7 +2891,6 @@ const styles = {
     },
 
     textPill: {
-        ellipsizeMode: 'end',
         backgroundColor: themeColors.border,
         borderRadius: 10,
         overflow: 'hidden',
@@ -2992,10 +2970,7 @@ const styles = {
     },
 
     emojiReactionBubble: {
-        paddingVertical: 2,
-        paddingHorizontal: 8,
         borderRadius: 28,
-        backgroundColor: themeColors.border,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
@@ -3004,20 +2979,20 @@ const styles = {
         marginRight: 4,
     },
 
-    emojiReactionText: {
-        fontSize: 12,
+    miniQuickEmojiReactionText: {
+        fontSize: 15,
         lineHeight: 20,
         textAlignVertical: 'center',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
     },
+
+    emojiReactionBubbleText: {
+        textAlignVertical: 'center',
+    },
+
     reactionCounterText: {
-        fontSize: 11,
+        fontSize: 13,
         marginLeft: 4,
         fontWeight: 'bold',
-        color: themeColors.textLight,
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
     },
 
     fontColorReactionLabel: {
@@ -3042,7 +3017,7 @@ const styles = {
         justifyContent: 'space-between',
     },
 
-    magicCodeDigits: {
+    validateCodeDigits: {
         color: themeColors.text,
         fontFamily: fontFamily.EXP_NEUE,
         fontSize: variables.fontSizeXXLarge,
@@ -3101,6 +3076,11 @@ const styles = {
         alignSelf: 'center',
         top: 60,
         zIndex: 100,
+    },
+
+    validateCodeMessage: {
+        width: variables.modalContentMaxWidth,
+        textAlign: 'center',
     },
 };
 
