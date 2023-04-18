@@ -69,11 +69,7 @@ class AttachmentCarousel extends React.Component {
         }
         this.makeStateWithReports();
     }
-    toggleZoomed(attachmentZoomed) {
-        this.setState({attachmentZoomed});
-        console.log(attachmentZoomed);
-        //Logger.log(attachmentZoomed);
-    }
+
     /**
      * Helps to navigate between next/previous attachments
      * @param {Object} attachmentItem
@@ -96,6 +92,10 @@ class AttachmentCarousel extends React.Component {
      */
     toggleArrowsVisibility(shouldShowArrow) {
         this.setState({shouldShowArrow});
+    }
+
+    toggleZoomed(attachmentZoomed) {
+        this.setState({attachmentZoomed});
     }
 
     /**

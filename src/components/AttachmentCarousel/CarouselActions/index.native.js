@@ -18,6 +18,13 @@ const propTypes = {
 
     /** Boolean to prevent a right swipe action */
     canSwipeRight: PropTypes.bool.isRequired,
+
+    /** Is current attachment zoomed */
+    isZoomed: PropTypes.bool,
+};
+
+const defaultProps = {
+    isZoomed: false,
 };
 
 class Carousel extends Component {
@@ -26,15 +33,14 @@ class Carousel extends Component {
         this.pan = new Animated.Value(0);
 
         this.panResponder = PanResponder.create({
-            //onStartShouldSetPanResponder: (event, gestureState) => !this.props.isZoomed || gestureState.numberActiveTouches === 2,
-            onStartShouldSetPanResponder: (event) => event.stopPropagation() || false,
-            
+            // onStartShouldSetPanResponder: (event, gestureState) => !this.props.isZoomed || gestureState.numberActiveTouches === 2,
+            onStartShouldSetPanResponder: event => event.stopPropagation() || false,
 
-            //onStartShouldSetPanResponderCapture: (event, gestureState) => gestureState.numberActiveTouches >= 2,
+            // onStartShouldSetPanResponderCapture: (event, gestureState) => gestureState.numberActiveTouches >= 2,
 
             onMoveShouldSetPanResponderCapture: (event, gestureState) => !this.props.isZoomed && gestureState.numberActiveTouches === 1,
 
-            /*onPanResponderReject: (event, gestureState) => event.stopPropagation(),
+            /* onPanResponderReject: (event, gestureState) => event.stopPropagation(),
 
             onPanResponderRelease: (event, gestureState) => event.stopPropagation(),
 
@@ -44,7 +50,7 @@ class Carousel extends Component {
 
             onPanResponderGrant: (event, gestureState) => event.stopPropagation(),
 
-            onShouldBlockNativeResponder: ()=>true,*/
+            onShouldBlockNativeResponder: ()=>true, */
 
             onPanResponderMove: (event, gestureState) => Animated.event([null, {
                 dx: this.pan,
@@ -93,5 +99,6 @@ class Carousel extends Component {
 }
 
 Carousel.propTypes = propTypes;
+Carousel.defaultProps = defaultProps;
 
 export default Carousel;

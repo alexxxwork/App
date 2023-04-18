@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Pressable, TouchableWithoutFeedback, PanResponder, View} from 'react-native';
+import {View} from 'react-native';
 import PDF from 'react-native-pdf';
 import KeyboardAvoidingView from '../KeyboardAvoidingView';
 import styles from '../../styles/styles';
@@ -12,7 +12,6 @@ import compose from '../../libs/compose';
 import withWindowDimensions from '../withWindowDimensions';
 import withKeyboardState, {keyboardStatePropTypes} from '../withKeyboardState';
 import withLocalize from '../withLocalize';
-import Log from '../../libs/Log';
 
 const propTypes = {
     ...pdfViewPropTypes,
@@ -50,24 +49,25 @@ class PDFView extends Component {
         this.finishPDFLoad = this.finishPDFLoad.bind(this);
         this.handleFailureToLoadPDF = this.handleFailureToLoadPDF.bind(this);
         this.toggleZoomed = this.toggleZoomed.bind(this);
-        /*this.panResponder = PanResponder.create({
+
+        /* this.panResponder = PanResponder.create({
             onStartShouldSetPanResponder: (event) => {
                 event.stopPropagation(); // here <<<<<<<<<<<<<<<<<<<<<<<
                 return false;
             },
-            /*onMoveShouldSetPanResponder: /*as i explained in my proposal
-        });*/
+            /*onMoveShouldSetPanResponder: /* as i explained in my proposal
+        }); */
     }
 
     componentDidUpdate() {
         this.props.onToggleKeyboard(this.props.isKeyboardShown);
     }
-    toggleZoomed(isZoomed){
+
+    toggleZoomed(isZoomed) {
         this.setState({isZoomed});
         this.props.toggleZoomed(isZoomed);
-        Log.info(String(isZoomed));
-        console.log(isZoomed);
     }
+
     handleFailureToLoadPDF(error) {
         if (error.message.match(/password/i)) {
             this.initiatePasswordChallenge();
@@ -148,7 +148,7 @@ class PDFView extends Component {
         // If we haven't yet successfully validated the password and loaded the PDF,
         // then we need to hide the react-native-pdf/PDF component so that PDFPasswordForm
         // is positioned nicely. We're specifically hiding it because we still need to render
-        // the PDF component so that it can validate the password. onResponderStart={(e)=>e} {...this.panResponder.panHandlers} 
+        // the PDF component so that it can validate the password. onResponderStart={(e)=>e} {...this.panResponder.panHandlers}
         if (this.state.shouldRequestPassword) {
             pdfStyles.push(styles.invisible);
         }
@@ -167,7 +167,7 @@ class PDFView extends Component {
                     </View>
                 )}
                 {this.state.shouldAttemptPDFLoad && (
-                    <View style={touchableStyles} > 
+                    <View style={touchableStyles}>
                         <PDF
                             trustAllCerts={false}
                             renderActivityIndicator={() => <FullScreenLoadingIndicator />}
@@ -177,7 +177,7 @@ class PDFView extends Component {
                             password={this.state.password}
                             onLoadComplete={this.finishPDFLoad}
                             onPageSingleTap={this.props.onPress}
-                            onScaleChanged={(scale) => this.toggleZoomed(scale>1)}
+                            onScaleChanged={scale => this.toggleZoomed(scale > 1)}
                         />
                     </View>
                 )}
