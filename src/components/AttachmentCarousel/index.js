@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, FlatList} from 'react-native';
+import {View, FlatList, Pressable, PanResponder} from 'react-native';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import _ from 'underscore';
@@ -57,6 +57,8 @@ class AttachmentCarousel extends React.Component {
         this.renderCell = this.renderCell.bind(this);
         this.updatePage = this.updatePage.bind(this);
         this.updateZoomState = this.updateZoomState.bind(this);
+        // this.toggleArrowsDebounced = this.toggleArrowsDebounced.bind(this);
+        this.toggleArrowsDebounced = _.debounce(this.toggleArrowsDebounced.bind(this), 300);
 
         this.state = {
             attachments: [],
@@ -64,7 +66,20 @@ class AttachmentCarousel extends React.Component {
             shouldShowArrow: this.canUseTouchScreen,
             containerWidth: 0,
             isZoomed: false,
+            isMoving: false,
         };
+
+        this.panResponder = PanResponder.create({
+            onStartShouldSetPanResponder: (event,gestureState) => {
+                if (gestureState.numberActiveTouches > 1 || this.state.isZoomed || this.state.isMoving) {
+                    return false;
+                }
+                //this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}));
+                this.toggleArrowsDebounced();
+                return false;
+            },
+            //onPanResponderTerminate: () => !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))
+        });
     }
 
     componentDidMount() {
@@ -212,8 +227,42 @@ class AttachmentCarousel extends React.Component {
     renderCell(props) {
         const style = [props.style, styles.h100, {width: this.state.containerWidth}];
 
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        return <View {...props} style={style} />;
+        // Touch screen devices can toggle between showing and hiding the arrows by tapping on the image/container
+        // Other devices toggle the arrows through hovering (mouse) instead (see render() root element)
+        if (!this.canUseTouchScreen) {
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            return <View {...props} style={style} />;
+        }
+
+        return (
+            <View
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+                // onPress={() => this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                // onStartShouldSetResponder={() => false}
+                /* onMoveShouldSetResponder={(event) => {
+                    const { dx, dy } = event.nativeEvent;
+                    // return Math.abs(dx) < 5 && Math.abs(dy) < 5; // Only respond to tap events (not swipe)
+                    //Math.abs(dx) < 5 && Math.abs(dy) < 5 && 
+                    !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}));
+                    return false;
+                  }}*/
+                // onResponderRelease={() => !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                // onPressOut={() => !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                {...this.panResponder.panHandlers}
+                // disabled={this.state.isZoomed}
+                //onStartShouldSetResponder={(event) => !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                style={style}
+                //onPress={this.toggleArrowsDebounced}
+            />
+        );
+    }
+
+    toggleArrowsDebounced() {
+        if (this.state.isZoomed) {
+            return;
+        }
+        this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}));
     }
 
     /**
@@ -232,7 +281,7 @@ class AttachmentCarousel extends React.Component {
                 source={authSource}
                 file={item.file}
                 onScaleChanged={this.updateZoomState}
-                onPress={() => this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                // onPress={this.toggleArrowsDebounced}
             />
         );
     }
@@ -318,6 +367,12 @@ class AttachmentCarousel extends React.Component {
                         keyExtractor={item => item.source}
                         viewabilityConfig={this.viewabilityConfig}
                         onViewableItemsChanged={this.updatePage}
+                        // onScrollBeginDrag={() => this.setState({shouldShowArrow: false})}
+                        // onScrollEndDrag={() => this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                        // onPress={() => !this.state.isZoomed && this.setState(current => ({shouldShowArrow: !current.shouldShowArrow}))}
+                        // onMomentumScrollBegin={() => this.setState({isMoving: true})}
+                        // onMomentumScrollEnd={() => this.setState({isMoving: false})}
+                        onScrollBeginDrag={this.toggleArrowsDebounced.cancel}
                     />
                 )}
 
