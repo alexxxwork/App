@@ -64,7 +64,7 @@ const AttachmentView = (props) => {
     // Handles case where source is a component (ex: SVG)
     if (_.isFunction(props.source)) {
         return (
-            <Pressable onPress={this.props.onPress}>
+            <Pressable onPress={props.onPress}>
                 <Icon src={props.source} height={variables.defaultAvatarPreviewSize} width={variables.defaultAvatarPreviewSize} />
             </Pressable>
         );
