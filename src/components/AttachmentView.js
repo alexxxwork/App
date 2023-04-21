@@ -77,8 +77,11 @@ const AttachmentView = (props) => {
         const sourceURL = props.isAuthTokenRequired
             ? addEncryptedAuthTokenToURL(props.source)
             : props.source;
+        const containerStyles = props.isSmallScreenWidth
+            ? [styles.w100, styles.flex1]
+            : [styles.alignItemsCenter, styles.flex1];
         return (
-            <Pressable onPress={props.onPress} disabled={loadComplete}>
+            <Pressable onPress={props.onPress} disabled={loadComplete} style={containerStyles}>
                 <PDFView
                     onPress={props.onPress}
                     sourceURL={sourceURL}
