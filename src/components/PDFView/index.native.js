@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
+import _ from 'underscore';
 import PDF from 'react-native-pdf';
 import KeyboardAvoidingView from '../KeyboardAvoidingView';
 import styles from '../../styles/styles';
@@ -117,7 +118,7 @@ class PDFView extends Component {
             shouldRequestPassword: false,
             shouldShowLoadingIndicator: false,
         });
-        this.props.onLoadComplete();
+        _.isFunction(this.props.onLoadComplete) && this.props.onLoadComplete();
     }
 
     render() {

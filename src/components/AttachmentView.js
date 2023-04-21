@@ -59,7 +59,7 @@ const defaultProps = {
 };
 
 const AttachmentView = (props) => {
-    //const [loadComplete, setLoadComplete] = useState(false);
+    const [loadComplete, setLoadComplete] = useState(false);
 
     // Handles case where source is a component (ex: SVG)
     if (_.isFunction(props.source)) {
@@ -78,15 +78,14 @@ const AttachmentView = (props) => {
             ? addEncryptedAuthTokenToURL(props.source)
             : props.source;
         return (
-            <Pressable onPress={props.onPress}>
-                {/*disabled={loadComplete}>*/}
+            <Pressable onPress={props.onPress} disabled={loadComplete}>
                 <PDFView
                     onPress={props.onPress}
                     sourceURL={sourceURL}
                     style={styles.imageModalPDF}
                     onToggleKeyboard={props.onToggleKeyboard}
                     onScaleChanged={props.onScaleChanged}
-                    //onLoadComplete={setLoadComplete(true)}
+                    onLoadComplete={() => !loadComplete && setLoadComplete(true)}
                 />
             </Pressable>
         );
