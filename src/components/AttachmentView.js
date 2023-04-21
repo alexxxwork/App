@@ -1,5 +1,5 @@
-import React, {memo} from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import React, {memo, useState} from 'react';
+import {View, ActivityIndicator, Pressable} from 'react-native';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import Str from 'expensify-common/lib/str';
@@ -59,10 +59,14 @@ const defaultProps = {
 };
 
 const AttachmentView = (props) => {
+    //const [loadComplete, setLoadComplete] = useState(false);
+
     // Handles case where source is a component (ex: SVG)
     if (_.isFunction(props.source)) {
         return (
-            <Icon src={props.source} height={variables.defaultAvatarPreviewSize} width={variables.defaultAvatarPreviewSize} />
+            <Pressable onPress={this.props.onPress}>
+                <Icon src={props.source} height={variables.defaultAvatarPreviewSize} width={variables.defaultAvatarPreviewSize} />
+            </Pressable>
         );
     }
 
@@ -74,13 +78,17 @@ const AttachmentView = (props) => {
             ? addEncryptedAuthTokenToURL(props.source)
             : props.source;
         return (
-            <PDFView
-                onPress={props.onPress}
-                sourceURL={sourceURL}
-                style={styles.imageModalPDF}
-                onToggleKeyboard={props.onToggleKeyboard}
-                onScaleChanged={props.onScaleChanged}
-            />
+            <Pressable onPress={props.onPress}>
+                {/*disabled={loadComplete}>*/}
+                <PDFView
+                    onPress={props.onPress}
+                    sourceURL={sourceURL}
+                    style={styles.imageModalPDF}
+                    onToggleKeyboard={props.onToggleKeyboard}
+                    onScaleChanged={props.onScaleChanged}
+                    //onLoadComplete={setLoadComplete(true)}
+                />
+            </Pressable>
         );
     }
 
@@ -88,7 +96,9 @@ const AttachmentView = (props) => {
     // both PDFs and images will appear as images when pasted into the the text field
     if (Str.isImage(props.source) || (props.file && Str.isImage(props.file.name))) {
         return (
-            <ImageView onPress={props.onPress} url={props.source} isAuthTokenRequired={props.isAuthTokenRequired} />
+            <Pressable onPress={props.onPress}>
+                <ImageView url={props.source} isAuthTokenRequired={props.isAuthTokenRequired} />
+            </Pressable>
         );
     }
 
@@ -96,28 +106,30 @@ const AttachmentView = (props) => {
         <View
             style={styles.defaultAttachmentView}
         >
-            <View style={styles.mr2}>
-                <Icon src={Expensicons.Paperclip} />
-            </View>
+            <Pressable onPress={this.props.onPress}>
+                <View style={styles.mr2}>
+                    <Icon src={Expensicons.Paperclip} />
+                </View>
 
-            <Text style={[styles.textStrong, styles.flexShrink1, styles.breakAll, styles.flexWrap, styles.mw100]}>{props.file && props.file.name}</Text>
-            {!props.shouldShowLoadingSpinnerIcon && props.shouldShowDownloadIcon && (
-                <View style={styles.ml2}>
-                    <Tooltip text={props.translate('common.download')}>
-                        <Icon src={Expensicons.Download} />
-                    </Tooltip>
-                </View>
-            )}
-            {props.shouldShowLoadingSpinnerIcon && (
-                <View style={styles.ml2}>
-                    <Tooltip text={props.translate('common.downloading')}>
-                        <ActivityIndicator
-                            size="small"
-                            color={themeColors.textSupporting}
-                        />
-                    </Tooltip>
-                </View>
-            )}
+                <Text style={[styles.textStrong, styles.flexShrink1, styles.breakAll, styles.flexWrap, styles.mw100]}>{props.file && props.file.name}</Text>
+                {!props.shouldShowLoadingSpinnerIcon && props.shouldShowDownloadIcon && (
+                    <View style={styles.ml2}>
+                        <Tooltip text={props.translate('common.download')}>
+                            <Icon src={Expensicons.Download} />
+                        </Tooltip>
+                    </View>
+                )}
+                {props.shouldShowLoadingSpinnerIcon && (
+                    <View style={styles.ml2}>
+                        <Tooltip text={props.translate('common.downloading')}>
+                            <ActivityIndicator
+                                size="small"
+                                color={themeColors.textSupporting}
+                            />
+                        </Tooltip>
+                    </View>
+                )}
+            </Pressable>
         </View>
     );
 };

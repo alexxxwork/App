@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, FlatList, PanResponder} from 'react-native';
+import {View, FlatList, PanResponder, Pressable} from 'react-native';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import _ from 'underscore';
@@ -77,6 +77,10 @@ class AttachmentCarousel extends React.Component {
                 this.toggleArrowsDebounced();
             },
         });
+        /* this.listPanResponder = PanResponder.create({
+            onMoveShouldSetPanResponderCapture: () => true,
+            onPanResponderGrant: this.toggleArrowsDebounced.cancel,
+        }); */
     }
 
     componentDidMount() {
@@ -250,8 +254,10 @@ class AttachmentCarousel extends React.Component {
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...props}
                 // eslint-disable-next-line react/jsx-props-no-spreading
-                {...this.panResponder.panHandlers}
+                // {...this.panResponder.panHandlers}
                 style={style}
+                // onPress={this.toggleArrowsDebounced}
+                // disabled={this.state.isZoomed}
             />
         );
     }
@@ -264,7 +270,7 @@ class AttachmentCarousel extends React.Component {
     renderItem({item}) {
         const authSource = addEncryptedAuthTokenToURL(item.source);
         if (!this.canUseTouchScreen) {
-            return <AttachmentView source={authSource} file={item.file} />;
+            return <AttachmentView source={authSource} file={item.file} onPress={this.toggleArrowsDebounced} />;
         }
 
         return (
@@ -272,6 +278,7 @@ class AttachmentCarousel extends React.Component {
                 source={authSource}
                 file={item.file}
                 onScaleChanged={this.updateZoomState}
+                onPress={this.toggleArrowsDebounced}
             />
         );
     }
@@ -359,7 +366,11 @@ class AttachmentCarousel extends React.Component {
                         onViewableItemsChanged={this.updatePage}
 
                         // Cancel pending arrow toggle action on swipe gesture
-                        onScrollBeginDrag={this.toggleArrowsDebounced.cancel}
+                        // onScrollBeginDrag={this.toggleArrowsDebounced.cancel}
+                        //onScroll={this.toggleArrowsDebounced.cancel}
+                        //onMoveShouldSetPanResponder={() => true}
+                        //onResponderGrant={this.toggleArrowsDebounced.cancel}
+                        //{...this.listPanResponder.panHandlers}
                     />
                 )}
 

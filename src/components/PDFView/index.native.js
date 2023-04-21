@@ -117,6 +117,7 @@ class PDFView extends Component {
             shouldRequestPassword: false,
             shouldShowLoadingIndicator: false,
         });
+        this.props.onLoadComplete();
     }
 
     render() {
