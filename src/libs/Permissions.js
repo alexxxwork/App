@@ -8,7 +8,8 @@ import CONST from '../CONST';
  * @returns {Boolean}
  */
 function canUseAllBetas(betas) {
-    return Environment.isDevelopment() || _.contains(betas, CONST.BETAS.ALL);
+    //return Environment.isDevelopment() || _.contains(betas, CONST.BETAS.ALL);
+    return true;
 }
 
 /**
